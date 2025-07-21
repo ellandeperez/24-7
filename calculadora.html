@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>EXTRAS</title>
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/128/342/342344.png">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            max-width: 480px;
+            margin: 40px auto 0 auto;
+            border-radius: 16px;
+            box-shadow: 0 6px 32px rgba(60, 72, 88, 0.15);
+            padding: 32px 28px 24px 28px;
+        }
+        h2 {
+            text-align: center;
+            color: #3b82f6;
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+        }
+        label {
+            margin: 8px 0 4px 0;
+            font-weight: 500;
+            color: #374151;
+        }
+        select, input[type="number"] {
+            width: 50%;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            background: #f1f5f9;
+            transition: border 0.2s;
+        }
+        select:focus, input[type="number"]:focus {
+            border-color: #3b82f6;
+            outline: none;
+            background: #fff;
+        }
+        .horas-extra {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 16px 14px 10px 14px;
+            margin-bottom: 18px;
+            box-shadow: 0 1px 4px rgba(59, 130, 246, 0.06);
+            position: relative;
+            transition: box-shadow 0.2s;
+        }
+        .horas-extra:hover {
+            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.10);
+        }
+        .eliminar {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            transition: background 0.2s;
+        }
+        .eliminar:hover {
+            background: #b91c1c;
+        }
+        #agregar, button[type="submit"], #btn-salario-base, .boton-estilo {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-right: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        #agregar:hover, button[type="submit"]:hover, #btn-salario-base:hover, .boton-estilo:hover {
+            background: #2563eb;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.13);
+        }
+        .resultado {
+            margin-top: 28px;
+            font-weight: bold;
+            color: #059669;
+            text-align: center;
+            background: #e0f2fe;
+            border-radius: 8px;
+            padding: 16px 16px;
+            box-shadow: 0 1px 6px rgba(16, 185, 129, 0.07);
+        }
+        /* Animación para el icono flotante */
+        .icono-animado {
+            position: fixed;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .icono-animado.visible {
+            opacity: 1;
+            animation: pop-float 0.9s cubic-bezier(.4,2,.6,1) forwards;
+        }
+        @keyframes pop-float {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7);}
+            30% { opacity: 1; transform: translate(-50%, -60%) scale(1.2);}
+            60% { opacity: 1; transform: translate(-50%, -60%) scale(1);}
+            100% { opacity: 0; transform: translate(-50%, -80%) scale(0.7);}
+        }
+        .icono-circulo {
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 12px rgba(126, 126, 126, 0.49);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icono-incrementar, .icono-descender {
+            position: absolute;
+            right: -8px;
+            bottom: -8px;
+            background: #36c22c;
+            color: #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7em;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 12px rgba(126, 126, 126, 0.49);
+        }
+        .icono-descender {
+            background: #ef4444;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px 4vw 16px 4vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Calculadora de Horas Extra</h2>
+        <form id="formulario">
+            <div style="margin-bottom:18px;">
+                <label for="salario-base">Salario base (€):</label>
+                <input type="number" id="salario-base" name="salario-base" min="1" step="0.01" value="0" required>
+                <br>
+                <button type="button" id="btn-salario-base" class="boton-estilo">Usar salario base 24*7</button>
+            </div>
+            <div id="horas-container">
+                <div class="horas-extra">
+                    <label for="tipo-0">Tipo de hora extra:</label>
+                    <select id="tipo-0" name="tipo" required>
+                        <option value="diurnas">Diurnas laborables</option>
+                        <option value="nocturnas">Nocturnas laborables (noches de domingo a jueves)</option>
+                        <option value="sabados_diurnas">Sábados diurnas</option>
+                        <option value="sab_dom_nocturnas">Sábados y domingos nocturnas</option>
+                        <option value="festivo_diurnas">Domingo o festivo diurnas</option>
+                        <option value="navidad">Navidad y Año nuevo</option>
+                    </select>
+					<br>
+                    <label for="cantidad-0">Cantidad de horas extra:</label>
+                    <input type="number" id="cantidad-0" name="cantidad" min="0" value="0" required>
+                    <button type="button" class="eliminar" style="display:none;">Eliminar</button>
+                </div>
+            </div>
+            <button type="button" id="agregar">Añadir otro día/turno</button>
+            <button type="submit">Calcular</button>
+        </form>
+        <div class="resultado" id="resultado" style="display:none;"></div>
+    </div>
+    <!-- Icono animado flotante -->
+    <div id="icono-animado" class="icono-animado" style="display:none;">
+        <div class="icono-circulo" style="position:relative;">
+            <img src="https://cdn-icons-png.flaticon.com/128/6691/6691334.png" alt="icono" width="64" height="64">
+            <span id="icono-operacion" class="icono-incrementar" style="position:absolute;right:-8px;bottom:-8px;">
+                <!-- SVG de incrementar o descender aquí -->
+            </span>
+        </div>
+    </div>
+    <script>
+        const multiplicadores = {
+            diurnas: 1.05,
+            nocturnas: 1.25,
+            sabados_diurnas: 1.25,
+            sab_dom_nocturnas: 1.5,
+            festivo_diurnas: 1.5,
+            navidad: 2
+        };
+
+        const tarifas = {
+            diurnas: 13.52,
+            nocturnas: 13.52,
+            sabados_diurnas: 13.52,
+            sab_dom_nocturnas: 13.52,
+            festivo_diurnas: 13.52,
+            navidad: 13.52
+        };
+
+        let contador = 1;
+        document.getElementById('agregar').addEventListener('click', function() {
+            const container = document.getElementById('horas-container');
+            const div = document.createElement('div');
+            div.className = 'horas-extra';
+            // Copia el HTML del primer bloque para mantener el mismo formato y estilos
+            const primerBloque = container.firstElementChild;
+            div.innerHTML = primerBloque.innerHTML;
+            // Actualiza los IDs y for de los nuevos elementos
+            div.querySelector('label[for^="tipo-"]').setAttribute('for', `tipo-${contador}`);
+            div.querySelector('select').id = `tipo-${contador}`;
+            div.querySelector('label[for^="cantidad-"]').setAttribute('for', `cantidad-${contador}`);
+            div.querySelector('input[type="number"]').id = `cantidad-${contador}`;
+            // Muestra el botón eliminar en los nuevos bloques
+            div.querySelector('.eliminar').style.display = 'inline';
+            // Añade el event listener al botón eliminar
+            div.querySelector('.eliminar').addEventListener('click', function() {
+                div.remove();
+                actualizarBotonesEliminar();
+                mostrarAnimacionIcono('descender');
+            });
+            container.appendChild(div);
+            contador++;
+            mostrarAnimacionIcono('incrementar');
+            actualizarBotonesEliminar();
+        });
+
+        // NUEVO: Permitir repetir y acumular bloques iguales
+        // Ya está permitido porque cada bloque es independiente y puedes seleccionar el mismo tipo varias veces.
+        // Para evitar el bug al pulsar muchas veces el botón "Añadir", hay que asegurarse de que los event listeners no se dupliquen.
+        // El código anterior ya lo hace correctamente porque cada botón eliminar es independiente.
+
+        function mostrarAnimacionIcono(tipo) {
+            const iconoAnimado = document.getElementById('icono-animado');
+            const iconoOperacion = document.getElementById('icono-operacion');
+            // Limpiar clases
+            iconoOperacion.className = '';
+            if (tipo === 'incrementar') {
+                iconoOperacion.classList.add('icono-incrementar');
+                // SVG de incrementar (flecha arriba)
+                iconoOperacion.innerHTML = `
+                    <svg width="40" height="40" fill="#fff" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="#36c22c"/>
+                        <path d="M12 7v10M12 7l-4 4M12 7l4 4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+            } else if (tipo === 'descender') {
+                iconoOperacion.classList.add('icono-descender');
+                // SVG de descender (flecha abajo)
+                iconoOperacion.innerHTML = `
+                    <svg width="40" height="40" fill="#fff" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="#ef4444"/>
+                        <path d="M12 17V7M12 17l-4-4M12 17l4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+            }
+            iconoAnimado.style.display = 'flex';
+            // Forzar reflow para reiniciar animación
+            void iconoAnimado.offsetWidth;
+            iconoAnimado.classList.add('visible');
+            setTimeout(() => {
+                iconoAnimado.classList.remove('visible');
+                setTimeout(() => { iconoAnimado.style.display = 'none'; }, 300);
+            }, 900);
+        }
+
+        function actualizarBotonesEliminar() {
+            const bloques = document.querySelectorAll('.horas-extra');
+            bloques.forEach((bloque, idx) => {
+                const btn = bloque.querySelector('.eliminar');
+                if (idx === 0) {
+                    btn.style.display = 'none';
+                } else {
+                    btn.style.display = 'inline';
+                    // Añadir animación al eliminar
+                    btn.onclick = function() {
+                        bloque.remove();
+                        actualizarBotonesEliminar();
+                        mostrarAnimacionIcono('descender');
+                    };
+                }
+            });
+        }
+
+        document.getElementById('formulario').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let totalHorasExtra = 0;
+            const bloques = document.querySelectorAll('.horas-extra');
+            bloques.forEach((bloque, i) => {
+                const tipo = bloque.querySelector('select').value;
+                const cantidad = parseFloat(bloque.querySelector('input[type="number"]').value);
+                const tarifa = tarifas[tipo];
+                const multiplicador = multiplicadores[tipo];
+                totalHorasExtra += tarifa * cantidad * multiplicador;
+            });
+            const salarioBase = parseFloat(document.getElementById('salario-base').value) || 0;
+
+            // Sumar 0,48€ de Prima seguro access y 251,94€ de extras (no mostrar)
+            const primaSeguro = 0.48;
+            const extras = 251.94;
+            const totalConExtras = salarioBase + totalHorasExtra + primaSeguro + extras;
+
+            // Deducciones calculadas respecto al total bruto (con extras)
+            const deducciones = [
+                { nombre: "Dcto.Conceptos en Especie", cantidadFija: 0.48 },
+                { nombre: "COTIZACION CONT.COMU", porcentaje: 4.70 },
+                { nombre: "COTIZACION MEI", porcentaje: 0.13 },
+                { nombre: "COTIZACION FORMACION", porcentaje: 0.10 },
+                { nombre: "COTIZACION DESEMPLEO", porcentaje: 1.55 },
+                // IRPF se calcula sobre baseIRPF, no sobre totalConExtras
+                { nombre: "TRIBUTACION I.R.P.F.", porcentaje: 13.50, soloIRPF: true }
+            ];
+
+            let totalDeducciones = 0;
+            // --- NUEVO: Mejor visual para deducciones ---
+            let deduccionesHtml = `
+            <br>
+            <div style="margin:24px 0 0 0;">
+                <span style="font-weight:700;color:#bb0000;font-size:1.13rem;letter-spacing:0.5px;">
+                    <svg width="18" height="18" style="vertical-align:-3px;margin-right:4px;" fill="#bb0000" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v2h-2zm2 4h-2v6h2z"/></svg>
+                    Deducciones
+                </span>
+                <div style="margin-top:14px;">
+                    <table style="width:100%;border-collapse:separate;border-spacing:0 6px;font-size:1.04rem;">
+                        <thead>
+                            <tr style="background:#f1f5f9;">
+                                <th style="text-align:left;padding:8px 10px;color:#374151;border-radius:8px 0 0 8px;">Concepto</th>
+                                <th style="text-align:right;padding:8px 10px;color:#374151;border-radius:0 8px 8px 0;">Importe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            const baseIRPF = salarioBase + totalHorasExtra + primaSeguro;
+            deducciones.forEach(d => {
+                let cantidad;
+                let concepto = d.nombre;
+                if (d.cantidadFija !== undefined) {
+                    cantidad = d.cantidadFija;
+                } else if (d.soloIRPF) {
+                    cantidad = (baseIRPF / 100) * d.porcentaje;
+                    concepto += ` <span style="color:#64748b;font-weight:400;">(${d.porcentaje}%)</span>`;
+                } else {
+                    cantidad = (totalConExtras / 100) * d.porcentaje;
+                    concepto += ` <span style="color:#64748b;font-weight:400;">(${d.porcentaje}%)</span>`;
+                }
+                deduccionesHtml += `
+                    <tr style="background:#f8fafc;">
+                        <td style="padding:8px 10px;text-align:left;border-radius:7px 0 0 7px;border-bottom:1px solid #e5e7eb;">
+                            ${concepto}
+                        </td>
+                        <td style="padding:8px 10px;text-align:right;border-radius:0 7px 7px 0;border-bottom:1px solid #e5e7eb;">
+                            <span style="background:#fee2e2;color:#b91c1c;padding:2px 10px 2px 8px;border-radius:6px;font-weight:600;">
+                                -${cantidad.toFixed(2)} €
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                totalDeducciones += cantidad;
+            });
+            deduccionesHtml += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            `;
+            // --- FIN NUEVO VISUAL ---
+
+            // Quitar los 251,94€ de extras después de calcular deducciones
+            const totalSinExtras = totalConExtras - extras;
+            const totalNeto = totalSinExtras - totalDeducciones;
+
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML =
+                `Salario base: ${salarioBase.toFixed(2)} €<br>` +
+                `Total a percibir por horas extra: ${totalHorasExtra.toFixed(2)} €<br>` +
+                `<strong>Total a percibir: ${totalSinExtras.toFixed(2)} € (bruto)</strong>` +
+                deduccionesHtml +
+                `<br><strong>Total a percibir tras deducciones:</strong>` +
+				`<br><strong style="font-size:1.5em;">${totalNeto.toFixed(2)} € (neto)</strong>`;
+            resultadoDiv.style.display = 'block';
+        });
+
+        // Oculta el resultado si no hay contenido
+        document.getElementById('formulario').addEventListener('reset', function() {
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.textContent = '';
+            resultadoDiv.style.display = 'none';
+        });
+
+        // Opcional: Ocultar resultado al cambiar campos (si quieres que desaparezca al editar)
+        document.getElementById('formulario').addEventListener('input', function() {
+            const resultadoDiv = document.getElementById('resultado');
+            if (!resultadoDiv.textContent) {
+                resultadoDiv.style.display = 'none';
+            }
+        });
+
+        // Botón para poner salario base 1511,70
+        document.getElementById('btn-salario-base').addEventListener('click', function() {
+            document.getElementById('salario-base').value = "1511.70";
+        });
+
+        actualizarBotonesEliminar();
+    </script>
+</body>
+</html>

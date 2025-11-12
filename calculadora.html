@@ -171,6 +171,10 @@
                 <br>
                 <button type="button" id="btn-salario-base" class="boton-estilo">Usar salario base 24*7</button>
             </div>
+            <div style="margin-bottom:8px;">
+                <label for="irpf">Retención IRPF (%):</label>
+                <input type="number" id="irpf" name="irpf" min="0" max="100" step="0.01" value="13.50" required>
+            </div>
             <div id="horas-container">
                 <div class="horas-extra">
                     <label for="tipo-0">Tipo de hora extra:</label>
@@ -317,6 +321,9 @@
                 totalHorasExtra += tarifa * cantidad * multiplicador;
             });
             const salarioBase = parseFloat(document.getElementById('salario-base').value) || 0;
+            // Leer IRPF dinámico (porcentaje) desde el formulario (por defecto 13.50)
+            const irpfValor = parseFloat(document.getElementById('irpf').value);
+            const irpf = isFinite(irpfValor) ? irpfValor : 13.50;
 
             // Sumar 0,48€ de Prima seguro access y 251,94€ de extras (no mostrar)
             const primaSeguro = 0.48;
@@ -325,13 +332,13 @@
 
             // Deducciones calculadas respecto al total bruto (con extras)
             const deducciones = [
-                { nombre: "Dcto.Conceptos en Especie", cantidadFija: 0.48 },
-                { nombre: "COTIZACION CONT.COMU", porcentaje: 4.70 },
-                { nombre: "COTIZACION MEI", porcentaje: 0.13 },
-                { nombre: "COTIZACION FORMACION", porcentaje: 0.10 },
-                { nombre: "COTIZACION DESEMPLEO", porcentaje: 1.55 },
-                // IRPF se calcula sobre baseIRPF, no sobre totalConExtras
-                { nombre: "TRIBUTACION I.R.P.F.", porcentaje: 13.50, soloIRPF: true }
+                 { nombre: "Dcto.Conceptos en Especie", cantidadFija: 0.48 },
+                 { nombre: "COTIZACION CONT.COMU", porcentaje: 4.70 },
+                 { nombre: "COTIZACION MEI", porcentaje: 0.13 },
+                 { nombre: "COTIZACION FORMACION", porcentaje: 0.10 },
+                 { nombre: "COTIZACION DESEMPLEO", porcentaje: 1.55 },
+                 // IRPF se calcula sobre baseIRPF, no sobre totalConExtras
+                { nombre: "TRIBUTACION I.R.P.F.", porcentaje: irpf, soloIRPF: true }
             ];
 
             let totalDeducciones = 0;

@@ -158,17 +158,25 @@
                 padding: 16px 4vw 16px 4vw;
             }
         }
+        .separador {
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, transparent, #3b82f6, transparent);
+            margin: 20px 0;
+            border: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Calculadora de Horas Extra</h2>
+        <hr class="separador">
         <form id="formulario">
             <div style="margin-bottom:18px;">
                 <label for="salario-base">Salario base (€):</label>
                 <input type="number" id="salario-base" name="salario-base" min="1" step="0.01" value="0" required>
                 <br>
-                <select id="salario-preset" class="boton-estilo" style="padding:8px 5px;border-radius:6px;margin-left:8px;">
+                <select id="salario-preset" class="boton-estilo" style="padding:8px 5px;border-radius:6px;margin-left:0px;">
                     <option value="">Seleccionar salario base</option>
                     <option value="1511.70">24*7 (14 pagas) 1511.70€</option>
                     <option value="1763.66">24*7 (12 pagas) 1763.66€</option>
@@ -179,7 +187,19 @@
             <div style="margin-bottom:8px;">
                 <label for="irpf">Retención IRPF (%):</label>
                 <input type="number" id="irpf" name="irpf" min="0" max="100" step="0.05" value="13.50" required>
+            </div>           
+        <hr class="separador">
+        <details id="visualizador-multiplicadores" style="margin-bottom: 16px; padding: 12px; background: #f3f4f6; border-radius: 8px; box-shadow: 0 1px 4px rgba(59, 130, 246, 0.06);">
+            <summary style="font-weight: bold; cursor: pointer;">Multiplicadores actuales</summary>
+            <ul id="lista-multiplicadores" style="margin-top: 8px; padding-left: 20px; list-style: none;">
+                <!-- Los valores se llenarán dinámicamente -->
+            </ul>
+            <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+                <button id="btn-multiplicadores-normales" class="boton-estilo">Multiplicadores Normales</button>
+                <button id="btn-propuesta-convenio" class="boton-estilo">Propuesta convenio</button>
             </div>
+        </details>
+        <hr class="separador">
             <div id="horas-container">
                 <div class="horas-extra">
                     <label for="tipo-0">Tipo de hora extra:</label>
@@ -200,6 +220,7 @@
             <button type="button" id="agregar">Añadir otro día/turno</button>
             <button type="submit">Calcular</button>
         </form>
+        <hr class="separador">
         <div class="resultado" id="resultado" style="display:none;"></div>
     </div>
     <!-- Icono animado flotante -->
@@ -212,12 +233,22 @@
         </div>
     </div>
     <script>
+        let usandoCopium = false;
         const multiplicadores = {
             diurnas: 1.05,
             nocturnas: 1.25,
             sabados_diurnas: 1.25,
             sab_dom_nocturnas: 1.5,
             festivo_diurnas: 1.5,
+            navidad: 2
+        };
+
+        const multiplicadoresCopium = {
+            diurnas: 1.5,
+            nocturnas: 2,
+            sabados_diurnas: 1.75,
+            sab_dom_nocturnas: 2,
+            festivo_diurnas: 2,
             navidad: 2
         };
 
@@ -312,17 +343,74 @@
                     };
                 }
             });
+        }        
+
+        function actualizarVisualizadorMultiplicadores() {
+            const lista = document.getElementById('lista-multiplicadores');
+            lista.innerHTML = ''; // Limpiar lista
+            const multiplicadoresActuales = usandoCopium ? multiplicadoresCopium : multiplicadores;
+
+            for (const [tipo, valor] of Object.entries(multiplicadoresActuales)) {
+                const li = document.createElement('li');
+                li.style.marginBottom = '1px';
+
+                const label = document.createElement('label');
+                label.textContent = `${tipo}: `;
+                label.style.fontWeight = 'bold';
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.value = valor;
+                input.step = '0.01';
+                input.style.width = '60px';
+                input.style.marginLeft = '8px';
+                input.style.padding = '2px';
+                input.style.border = '1px solid #cbd5e1';
+                input.style.borderRadius = '4px';
+                input.style.background = '#f1f5f9';
+
+                // Actualizar el valor del multiplicador al cambiar el input
+                input.addEventListener('input', () => {
+                    const nuevoValor = parseFloat(input.value);
+                    if (!isNaN(nuevoValor)) {
+                        if (usandoCopium) {
+                            multiplicadoresCopium[tipo] = nuevoValor;
+                        } else {
+                            multiplicadores[tipo] = nuevoValor;
+                        }
+                    }
+                });
+
+                li.appendChild(label);
+                li.appendChild(input);
+                lista.appendChild(li);
+            }
         }
+        
+        // Botón para usar los multiplicadores de la propuesta convenio
+        document.getElementById('btn-propuesta-convenio').addEventListener('click', (e) => {
+            e.preventDefault(); // Evitar cualquier acción por defecto
+            usandoCopium = true; // Cambiar el estado a usar multiplicadores Copium
+            actualizarVisualizadorMultiplicadores(); // Actualizar el visualizador de multiplicadores
+        });
+
+        // Botón para usar los multiplicadores normales
+        document.getElementById('btn-multiplicadores-normales').addEventListener('click', (e) => {
+            e.preventDefault(); // Evitar cualquier acción por defecto
+            usandoCopium = false; // Cambiar el estado a usar multiplicadores normales
+            actualizarVisualizadorMultiplicadores(); // Actualizar el visualizador de multiplicadores
+        });
 
         document.getElementById('formulario').addEventListener('submit', function(e) {
             e.preventDefault();
             let totalHorasExtra = 0;
             const bloques = document.querySelectorAll('.horas-extra');
-            bloques.forEach((bloque, i) => {
+            const multiplicadoresActuales = usandoCopium ? multiplicadoresCopium : multiplicadores;
+            bloques.forEach((bloque) => {
                 const tipo = bloque.querySelector('select').value;
                 const cantidad = parseFloat(bloque.querySelector('input[type="number"]').value);
                 const tarifa = tarifas[tipo];
-                const multiplicador = multiplicadores[tipo];
+                const multiplicador = multiplicadoresActuales[tipo];
                 totalHorasExtra += tarifa * cantidad * multiplicador;
             });
             const salarioBase = parseFloat(document.getElementById('salario-base').value) || 0;
@@ -413,6 +501,7 @@
                 `<br><strong>Total a percibir tras deducciones:</strong>` +
 				`<br><strong style="font-size:1.5em;">${totalNeto.toFixed(2)} € (neto)</strong>`;
             resultadoDiv.style.display = 'block';
+            resultadoDiv.scrollIntoView({ behavior: 'smooth' });
         });
 
         // Oculta el resultado si no hay contenido
@@ -449,6 +538,7 @@
         });
 
         actualizarBotonesEliminar();
+        actualizarVisualizadorMultiplicadores();
     </script>
 </body>
 </html>

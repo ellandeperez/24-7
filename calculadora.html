@@ -169,13 +169,10 @@
 </head>
 <body>
     <div class="container">
-        <h2>Calculadora de Horas Extra</h2>
+        <h2>CALCULADORA DE HORAS EXTRA</h2>
         <hr class="separador">
         <form id="formulario">
-            <div style="margin-bottom:18px;">
-                <label for="salario-base">Salario base (€):</label>
-                <input type="number" id="salario-base" name="salario-base" min="1" step="0.01" value="0" required>
-                <br>
+            <div style="margin-bottom:8px;">
                 <select id="salario-preset" class="boton-estilo" style="padding:8px 5px;border-radius:6px;margin-left:0px;">
                     <option value="">Seleccionar salario base</option>
                     <option value="1511.70">24*7 (14 pagas) 1511.70€</option>
@@ -183,12 +180,14 @@
                     <option value="1407.72">Diurno (14 pagas) 1407.72€</option>
                     <option value="1642.33">Diurno (12 pagas) 1642.33€</option>
                 </select>
+                <br>
+                <label for="salario-base">Salario base (€):</label>
+                <input type="number" id="salario-base" name="salario-base" min="1" step="0.01" value="0" required>
             </div>
             <div style="margin-bottom:8px;">
                 <label for="irpf">Retención IRPF (%):</label>
                 <input type="number" id="irpf" name="irpf" min="0" max="100" step="0.05" value="13.50" required>
             </div>           
-        <hr class="separador">
         <details id="visualizador-multiplicadores" style="margin-bottom: 16px; padding: 12px; background: #f3f4f6; border-radius: 8px; box-shadow: 0 1px 4px rgba(59, 130, 246, 0.06);">
             <summary style="font-weight: bold; cursor: pointer;">Multiplicadores actuales</summary>
             <ul id="lista-multiplicadores" style="margin-top: 8px; padding-left: 20px; list-style: none;">
@@ -199,7 +198,6 @@
                 <button id="btn-propuesta-convenio" class="boton-estilo">Propuesta convenio</button>
             </div>
         </details>
-        <hr class="separador">
             <div id="horas-container">
                 <div class="horas-extra">
                     <label for="tipo-0">Tipo de hora extra:</label>

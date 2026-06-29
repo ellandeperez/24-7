@@ -199,29 +199,23 @@
             <div style="margin-bottom:8px;">
                 <select id="salario-preset" class="boton-estilo" style="padding:8px 5px;border-radius:6px;margin-left:0px;">
                     <option value="">Seleccionar salario base</option>
-                    <option value="1511.70">24*7 (14 pagas) 1511.70€</option>
-                    <option value="1763.66">24*7 (12 pagas) 1763.66€</option>
-                    <option value="1407.72">Diurno (14 pagas) 1407.72€</option>
-                    <option value="1642.33">Diurno (12 pagas) 1642.33€</option>
+                    <option value="1557.05">24*7 (14 pagas) 21.798,56€</option>
+                    <option value="1816.56">24*7 (12 pagas) 21.798,56€</option>
+                    <option value="1449.94">Diurno (14 pagas) 20.299,20€</option>
+                    <option value="1691.60">Diurno (12 pagas) 20.299,20€</option>
                 </select>
                 <br>
-                <label for="salario-base">Salario base (€):</label>
+                <label for="salario-base">Bruto al mes (€):</label>
                 <input type="number" id="salario-base" name="salario-base" min="1" step="0.01" value="0" required>
             </div>
             <div style="margin-bottom:8px;">
                 <label for="irpf">Retención IRPF (%):</label>
-                <input type="number" id="irpf" name="irpf" min="0" max="100" step="0.05" value="13.50" required>
-            </div>           
-        <details id="visualizador-multiplicadores" style="margin-bottom: 16px; padding: 12px; background: #f3f4f6; border-radius: 8px; box-shadow: 0 1px 4px rgba(59, 130, 246, 0.06);">
-            <summary style="font-weight: bold; cursor: pointer;">Multiplicadores actuales</summary>
-            <ul id="lista-multiplicadores" style="margin-top: 8px; padding-left: 20px; list-style: none;">
-                <!-- Los valores se llenarán dinámicamente -->
-            </ul>
-            <div style="display: flex; justify-content: space-between; margin-top: 16px;">
-                <button id="btn-multiplicadores-normales" class="boton-estilo">Multiplicadores Normales</button>
-                <button id="btn-propuesta-convenio" class="boton-estilo">Propuesta convenio</button>
+                <input type="number" id="irpf" name="irpf" min="0" max="100" step="0.05" value="11" required>
             </div>
-        </details>
+            <details id="visualizador-multiplicadores" style="margin-bottom: 16px; padding: 12px; background: #f3f4f6; border-radius: 8px; box-shadow: 0 1px 4px rgba(59, 130, 246, 0.06);">
+                <summary style="font-weight: bold; cursor: pointer;">Multiplicadores</summary>
+                <ul id="lista-multiplicadores" style="margin-top: 8px; padding-left: 20px; list-style: none;"></ul>
+            </details>
             <div id="horas-container">
                 <div class="horas-extra">
                     <label for="tipo-0">Tipo de hora extra:</label>
@@ -230,8 +224,8 @@
                         <option value="nocturnas">Nocturnas laborables (noches de domingo a jueves)</option>
                         <option value="sabados_diurnas">Sábados diurnas</option>
                         <option value="sab_dom_nocturnas">Sábados y domingos nocturnas</option>
-                        <option value="festivo_diurnas">Domingo o festivo diurnas</option>
-                        <option value="navidad">Navidad y Año nuevo</option>
+                        <option value="domingo_diurnas">Domingo diurnas</option>
+                        <option value="festivo">Festivos</option>
                     </select>
 					<br>
                     <label for="cantidad-0">Cantidad de horas extra:</label>
@@ -255,23 +249,13 @@
         </div>
     </div>
     <script>
-        let usandoCopium = false;
         const multiplicadores = {
-            diurnas: 1.05,
+            diurnas: 1.1,
             nocturnas: 1.25,
             sabados_diurnas: 1.25,
             sab_dom_nocturnas: 1.5,
-            festivo_diurnas: 1.5,
-            navidad: 2
-        };
-
-        const multiplicadoresCopium = {
-            diurnas: 1.5,
-            nocturnas: 2,
-            sabados_diurnas: 1.75,
-            sab_dom_nocturnas: 2,
-            festivo_diurnas: 2,
-            navidad: 2
+            domingo_diurnas: 1.5,
+            festivo: 2
         };
 
         const tarifas = {
@@ -279,8 +263,8 @@
             nocturnas: 13.52,
             sabados_diurnas: 13.52,
             sab_dom_nocturnas: 13.52,
-            festivo_diurnas: 13.52,
-            navidad: 13.52
+            domingo_diurnas: 13.52,
+            festivo: 13.52
         };
 
         let contador = 1;
@@ -365,16 +349,15 @@
                     };
                 }
             });
-        }        
+        }
 
         function actualizarVisualizadorMultiplicadores() {
             const lista = document.getElementById('lista-multiplicadores');
-            lista.innerHTML = ''; // Limpiar lista
-            const multiplicadoresActuales = usandoCopium ? multiplicadoresCopium : multiplicadores;
+            lista.innerHTML = '';
 
-            for (const [tipo, valor] of Object.entries(multiplicadoresActuales)) {
+            for (const [tipo, valor] of Object.entries(multiplicadores)) {
                 const li = document.createElement('li');
-                li.style.marginBottom = '1px';
+                li.style.marginBottom = '6px';
 
                 const label = document.createElement('label');
                 label.textContent = `${tipo}: `;
@@ -384,22 +367,17 @@
                 input.type = 'number';
                 input.value = valor;
                 input.step = '0.01';
-                input.style.width = '60px';
+                input.style.width = '70px';
                 input.style.marginLeft = '8px';
                 input.style.padding = '2px';
                 input.style.border = '1px solid #cbd5e1';
                 input.style.borderRadius = '4px';
                 input.style.background = '#f1f5f9';
 
-                // Actualizar el valor del multiplicador al cambiar el input
                 input.addEventListener('input', () => {
                     const nuevoValor = parseFloat(input.value);
                     if (!isNaN(nuevoValor)) {
-                        if (usandoCopium) {
-                            multiplicadoresCopium[tipo] = nuevoValor;
-                        } else {
-                            multiplicadores[tipo] = nuevoValor;
-                        }
+                        multiplicadores[tipo] = nuevoValor;
                     }
                 });
 
@@ -408,26 +386,12 @@
                 lista.appendChild(li);
             }
         }
-        
-        // Botón para usar los multiplicadores de la propuesta convenio
-        document.getElementById('btn-propuesta-convenio').addEventListener('click', (e) => {
-            e.preventDefault(); // Evitar cualquier acción por defecto
-            usandoCopium = true; // Cambiar el estado a usar multiplicadores Copium
-            actualizarVisualizadorMultiplicadores(); // Actualizar el visualizador de multiplicadores
-        });
-
-        // Botón para usar los multiplicadores normales
-        document.getElementById('btn-multiplicadores-normales').addEventListener('click', (e) => {
-            e.preventDefault(); // Evitar cualquier acción por defecto
-            usandoCopium = false; // Cambiar el estado a usar multiplicadores normales
-            actualizarVisualizadorMultiplicadores(); // Actualizar el visualizador de multiplicadores
-        });
 
         document.getElementById('formulario').addEventListener('submit', function(e) {
             e.preventDefault();
             let totalHorasExtra = 0;
             const bloques = document.querySelectorAll('.horas-extra');
-            const multiplicadoresActuales = usandoCopium ? multiplicadoresCopium : multiplicadores;
+            const multiplicadoresActuales = multiplicadores;
             bloques.forEach((bloque) => {
                 const tipo = bloque.querySelector('select').value;
                 const cantidad = parseFloat(bloque.querySelector('input[type="number"]').value);
@@ -559,8 +523,8 @@
             }
         });
 
-        actualizarBotonesEliminar();
         actualizarVisualizadorMultiplicadores();
+        actualizarBotonesEliminar();
     </script>
 </body>
 </html>
